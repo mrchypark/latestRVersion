@@ -16,8 +16,7 @@ getVersions<-function(tar){
   cont<-cont[grep("^[0-9]",cont)]
   cont<-strsplit(cont,"</")
   cont<-unlist(lapply(cont, function(x) x[1]))
-  versions<-as.numeric(cont)
-  return(versions)
+  return(cont)
 }
 
 jug() %>%
@@ -27,7 +26,8 @@ jug() %>%
   }) %>%
   get("/latest", function(req, res, err){
     versions<-getVersions(tar)
-    res$json(versions[1])
+    return(versions[1])
   }) %>% 
   simple_error_handler_json() %>%
+  # serve_it()
   serve_it(host="0.0.0.0", port=80)
