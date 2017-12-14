@@ -15,7 +15,8 @@ getVersions<-function(tar){
   cont<-cont[grep("h3",cont)]
   cont<-cont[grep("^[0-9]",cont)]
   cont<-strsplit(cont,"</")
-  versions<-unlist(lapply(cont, function(x) x[1]))
+  cont<-unlist(lapply(cont, function(x) x[1]))
+  versions<-as.numeric(cont)
   return(versions)
 }
 
