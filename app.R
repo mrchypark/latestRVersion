@@ -1,26 +1,32 @@
 if(!requireNamespace("jug")){
   install.packages("jug")
 }
-if(!requireNamespace("rvest")){
-  install.packages("rvest")
+if(!requireNamespace("httr")){
+  install.packages("httr")
 }
-library(rvest)
+library(httr)
 library(jug)
 
 tar<-"https://cloud.r-project.org/doc/manuals/r-release/NEWS.html"
 
+getVersions<-function(tar){
+  cont<-content(GET(tar),"text")
+  cont<-strsplit(cont," ")[[1]]
+  cont<-cont[grep("h3",cont)]
+  cont<-cont[grep("^[0-9]",cont)]
+  cont<-strsplit(cont,"</")
+  versions<-unlist(lapply(cont, function(x) x[1]))
+  return(versions)
+}
+
 jug() %>%
   get("/", function(req, res, err){
-    versions <-
-      tar %>% 
-      read_html %>% 
-      html_nodes("h3") %>% 
-      html_text
-    
-    versions <- 
-      sub(" CHANGES IN R ","",versions)
-    
+    versions<-getVersions(tar)
     res$json(versions)
   }) %>%
+  get("/latest", function(req, res, err){
+    versions<-getVersions(tar)
+    res$json(versions[1])
+  }) %>% 
   simple_error_handler_json() %>%
   serve_it(host="0.0.0.0", port=80)
